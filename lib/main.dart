@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -14,34 +12,35 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(),
+      home: MyHomePage(),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key});
-
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-  final TextEditingController _controller = TextEditingController();
+  int _counter = 0;  // Лічильник
+  final TextEditingController _controller = TextEditingController();  // Контролер для текстового поля
 
   void _incrementCounter() {
     setState(() {
-      final String input = _controller.text;
+      String input = _controller.text;  // Отримуємо текст з поля введення
 
+      // Якщо введений текст є числом, додаємо його до лічильника
       if (int.tryParse(input) != null) {
         _counter += int.parse(input);
       }
 
-      if (input == 'Avada Kedavra') {
+      // Якщо введено "Avada Kedavra", скидаємо лічильник до 0
+      if (input == "Avada Kedavra") {
         _counter = 0;
       }
 
+      // Очищаємо поле після обробки
       _controller.clear();
     });
   }
@@ -50,7 +49,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Інтерактивне поле введення'),
+        title: Text('Інтерактивне поле введення'),
       ),
       body: Center(
         child: Column(
@@ -58,22 +57,22 @@ class _MyHomePageState extends State<MyHomePage> {
           children: <Widget>[
             Text(
               'Інкремент: $_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
+              style: Theme.of(context).textTheme.headline4,
             ),
             Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16.0),
               child: TextField(
-                controller: _controller,
-                decoration: const InputDecoration(
+                controller: _controller,  // Прив'язуємо контролер
+                decoration: InputDecoration(
                   border: OutlineInputBorder(),
                   labelText: 'Введіть число або "Avada Kedavra"',
                 ),
-                keyboardType: TextInputType.text,
+                keyboardType: TextInputType.text,  // Тип введення
               ),
             ),
             ElevatedButton(
-              onPressed: _incrementCounter,
-              child: const Text('Оновити інкремент'),
+              onPressed: _incrementCounter,  // Викликає функцію інкременту при натисканні
+              child: Text('Оновити інкремент'),
             ),
           ],
         ),
