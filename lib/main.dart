@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -12,35 +14,43 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(),
+      home: const MyHomePage(),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key});
+
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;  // Лічильник
-  final TextEditingController _controller = TextEditingController();  // Контролер для текстового поля
+  int _counter = 0;
+  final TextEditingController _controller = TextEditingController();
+  String? _errorMessage;  // Для виведення повідомлення про помилку
+
+  @override
+  void dispose() {
+    _controller.dispose();  // Звільняємо ресурс, коли віджет видаляється
+    super.dispose();
+  }
 
   void _incrementCounter() {
     setState(() {
-      String input = _controller.text;  // Отримуємо текст з поля введення
+      final String input = _controller.text;
 
-      // Якщо введений текст є числом, додаємо його до лічильника
       if (int.tryParse(input) != null) {
         _counter += int.parse(input);
-      }
-
-      // Якщо введено "Avada Kedavra", скидаємо лічильник до 0
-      if (input == "Avada Kedavra") {
+        _errorMessage = null;  // Очищаємо повідомлення про помилку
+      } else if (input == 'Avada Kedavra') {
         _counter = 0;
+        _errorMessage = null;
+      } else {
+        _errorMessage = 'Введіть число або "Avada Kedavra"';
       }
 
-      // Очищаємо поле після обробки
       _controller.clear();
     });
   }
@@ -49,7 +59,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Інтерактивне поле введення'),
+        title: const Text('Інтерактивне поле введення'),
       ),
       body: Center(
         child: Column(
@@ -57,22 +67,23 @@ class _MyHomePageState extends State<MyHomePage> {
           children: <Widget>[
             Text(
               'Інкремент: $_counter',
-              style: Theme.of(context).textTheme.headline4,
+              style: Theme.of(context).textTheme.headlineMedium,
             ),
             Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(16),
               child: TextField(
-                controller: _controller,  // Прив'язуємо контролер
+                controller: _controller,
                 decoration: InputDecoration(
-                  border: OutlineInputBorder(),
+                  border: const OutlineInputBorder(),
                   labelText: 'Введіть число або "Avada Kedavra"',
+                  errorText: _errorMessage,  // Виводимо повідомлення про помилку
                 ),
-                keyboardType: TextInputType.text,  // Тип введення
+                keyboardType: TextInputType.text,
               ),
             ),
             ElevatedButton(
-              onPressed: _incrementCounter,  // Викликає функцію інкременту при натисканні
-              child: Text('Оновити інкремент'),
+              onPressed: _incrementCounter,
+              child: const Text('Оновити інкремент'),
             ),
           ],
         ),
