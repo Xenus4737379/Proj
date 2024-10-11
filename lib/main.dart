@@ -29,6 +29,13 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
   final TextEditingController _controller = TextEditingController();
+  String? _errorMessage;  // Для виведення повідомлення про помилку
+
+  @override
+  void dispose() {
+    _controller.dispose();  // Звільняємо ресурс, коли віджет видаляється
+    super.dispose();
+  }
 
   void _incrementCounter() {
     setState(() {
@@ -36,10 +43,12 @@ class _MyHomePageState extends State<MyHomePage> {
 
       if (int.tryParse(input) != null) {
         _counter += int.parse(input);
-      }
-
-      if (input == 'Avada Kedavra') {
+        _errorMessage = null;  // Очищаємо повідомлення про помилку
+      } else if (input == 'Avada Kedavra') {
         _counter = 0;
+        _errorMessage = null;
+      } else {
+        _errorMessage = 'Введіть число або "Avada Kedavra"';
       }
 
       _controller.clear();
@@ -64,9 +73,10 @@ class _MyHomePageState extends State<MyHomePage> {
               padding: const EdgeInsets.all(16),
               child: TextField(
                 controller: _controller,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  border: const OutlineInputBorder(),
                   labelText: 'Введіть число або "Avada Kedavra"',
+                  errorText: _errorMessage,  // Виводимо повідомлення про помилку
                 ),
                 keyboardType: TextInputType.text,
               ),
