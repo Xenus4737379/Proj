@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
   }
 }
 
-// Створимо змінні для збереження даних користувача
+// Збереження даних користувача
 String savedUsername = '';
 String savedEmail = '';
 String savedPassword = '';
@@ -88,13 +88,47 @@ class LoginPage extends StatelessWidget {
   }
 }
 
-// Екран Реєстрації
+// Екран Реєстрації з валідацією
 class RegisterPage extends StatelessWidget {
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
   RegisterPage({super.key});
+
+  bool validateEmail(String email) {
+    return email.contains('@');
+  }
+
+  bool validateUsername(String username) {
+    return !RegExp(r'[0-9]').hasMatch(username);
+  }
+
+  void register(BuildContext context) {
+    String username = usernameController.text;
+    String email = emailController.text;
+    String password = passwordController.text;
+
+    if (!validateUsername(username)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Ім'я не повинно містити цифри.")),
+      );
+      return;
+    }
+
+    if (!validateEmail(email)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Емейл має містити '@'.")),
+      );
+      return;
+    }
+
+    savedUsername = username;
+    savedEmail = email;
+    savedPassword = password;
+
+    Navigator.pushNamed(context, '/Логін');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -120,13 +154,7 @@ class RegisterPage extends StatelessWidget {
             const SizedBox(height: 20),
             CustomButton(
               text: 'Регістрація',
-              onPressed: () {
-                savedUsername = usernameController.text;
-                savedEmail = emailController.text;
-                savedPassword = passwordController.text;
-
-                Navigator.pushNamed(context, '/Логін');
-              },
+              onPressed: () => register(context),
             ),
           ],
         ),
@@ -152,32 +180,107 @@ class ProfilePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Профіль')),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                'З ПОВЕРНЕННЯМ, $username!',
+                style: const TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 20),
+              Text(
+                'Логін: $username',
+                style: const TextStyle(fontSize: 18),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                'Емейл: $email',
+                style: const TextStyle(fontSize: 18),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                'Пароль: $password',
+                style: const TextStyle(fontSize: 18),
+              ),
+              const SizedBox(height: 30),
+              CustomButton(
+                text: 'Редагувати',
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute<Widget>(
+                      builder: (context) => EditProfilePage(
+                        username: username,
+                        email: email,
+                        password: password,
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// Екран редагування профілю
+class EditProfilePage extends StatelessWidget {
+  final TextEditingController usernameController;
+  final TextEditingController emailController;
+  final TextEditingController passwordController;
+
+  EditProfilePage({
+    required String username,
+    required String email,
+    required String password,
+    super.key,
+  })  : usernameController = TextEditingController(text: username),
+        emailController = TextEditingController(text: email),
+        passwordController = TextEditingController(text: password);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Редагування профілю')),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            Text(
-              'З ПОВЕРНЕННЯМ, $username!',
-              style: const TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-              ),
-              textAlign: TextAlign.center,
+            TextField(
+              controller: usernameController,
+              decoration: const InputDecoration(labelText: "Ім'я"),
+            ),
+            TextField(
+              controller: emailController,
+              decoration: const InputDecoration(labelText: 'Емейл'),
+            ),
+            TextField(
+              controller: passwordController,
+              decoration: const InputDecoration(labelText: 'Пароль'),
+              obscureText: true,
             ),
             const SizedBox(height: 20),
-            Text(
-              'Логін: $username',
-              style: const TextStyle(fontSize: 18),
-            ),
-            const SizedBox(height: 10),
-            Text(
-              'Емейл: $email',
-              style: const TextStyle(fontSize: 18),
-            ),
-            const SizedBox(height: 10),
-            Text(
-              'Пароль: $password',
-              style: const TextStyle(fontSize: 18),
+            CustomButton(
+              text: 'Зберегти',
+              onPressed: () {
+                // Оновлення даних у локальному сховищі
+                savedUsername = usernameController.text;
+                savedEmail = emailController.text;
+                savedPassword = passwordController.text;
+
+                // Повертаємося назад до профілю
+                Navigator.pop(context);
+              },
             ),
           ],
         ),
@@ -195,7 +298,6 @@ class HomePage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Ігрові новини')),
       body: SingleChildScrollView(
-        // Додаємо прокручуваний віджет
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
