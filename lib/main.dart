@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
   }
 }
 
-// Створимо змінні для збереження даних користувача
+// Збереження даних користувача
 String savedUsername = '';
 String savedEmail = '';
 String savedPassword = '';
@@ -88,13 +88,47 @@ class LoginPage extends StatelessWidget {
   }
 }
 
-// Екран Реєстрації
+// Екран Реєстрації з валідацією
 class RegisterPage extends StatelessWidget {
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
   RegisterPage({super.key});
+
+  bool validateEmail(String email) {
+    return email.contains('@');
+  }
+
+  bool validateUsername(String username) {
+    return !RegExp(r'[0-9]').hasMatch(username);
+  }
+
+  void register(BuildContext context) {
+    String username = usernameController.text;
+    String email = emailController.text;
+    String password = passwordController.text;
+
+    if (!validateUsername(username)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Ім'я не повинно містити цифри.")),
+      );
+      return;
+    }
+
+    if (!validateEmail(email)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Емейл має містити '@'.")),
+      );
+      return;
+    }
+
+    savedUsername = username;
+    savedEmail = email;
+    savedPassword = password;
+
+    Navigator.pushNamed(context, '/Логін');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -120,13 +154,7 @@ class RegisterPage extends StatelessWidget {
             const SizedBox(height: 20),
             CustomButton(
               text: 'Регістрація',
-              onPressed: () {
-                savedUsername = usernameController.text;
-                savedEmail = emailController.text;
-                savedPassword = passwordController.text;
-
-                Navigator.pushNamed(context, '/Логін');
-              },
+              onPressed: () => register(context),
             ),
           ],
         ),
