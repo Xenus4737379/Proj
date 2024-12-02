@@ -1,6 +1,3 @@
-import 'dart:async';
-
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -17,7 +14,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: checkUserLoggedIn() ? const HomePage() : LoginPage(),
+      home: LoginPage(),
       routes: {
         '/Логін': (context) => LoginPage(),
         '/Регістрація': (context) => RegisterPage(),
@@ -29,11 +26,6 @@ class MyApp extends StatelessWidget {
         '/Головна сторінка': (context) => const HomePage(),
       },
     );
-  }
-
-  bool checkUserLoggedIn() {
-    // Повертає true, якщо користувач вже зареєстрований
-    return savedUsername.isNotEmpty && savedPassword.isNotEmpty;
   }
 }
 
@@ -89,29 +81,10 @@ class LoginPage extends StatelessWidget {
                 Navigator.pushNamed(context, '/Регістрація');
               },
             ),
-            const SizedBox(height: 20),
-            CustomButton(
-              text: 'Автоматичний вхід',
-              onPressed: () {
-                if (checkUserLoggedIn()) {
-                  Navigator.pushNamed(context, '/Головна сторінка');
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text("Користувач не знайдений."),
-                    ),
-                  );
-                }
-              },
-            ),
           ],
         ),
       ),
     );
-  }
-
-  bool checkUserLoggedIn() {
-    return savedUsername.isNotEmpty && savedPassword.isNotEmpty;
   }
 }
 
@@ -132,9 +105,9 @@ class RegisterPage extends StatelessWidget {
   }
 
   void register(BuildContext context) {
-    final String username = usernameController.text;
-    final String email = emailController.text;
-    final String password = passwordController.text;
+    String username = usernameController.text;
+    String email = emailController.text;
+    String password = passwordController.text;
 
     if (!validateUsername(username)) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -191,7 +164,7 @@ class RegisterPage extends StatelessWidget {
 }
 
 // Екран Профілю
-class ProfilePage extends StatefulWidget {
+class ProfilePage extends StatelessWidget {
   final String username;
   final String email;
   final String password;
@@ -202,24 +175,6 @@ class ProfilePage extends StatefulWidget {
     required this.password,
     super.key,
   });
-
-  @override
-  _ProfilePageState createState() => _ProfilePageState();
-}
-
-class _ProfilePageState extends State<ProfilePage> {
-  late String username;
-  late String email;
-  late String password;
-
-  @override
-  void initState() {
-    super.initState();
-    // Ініціалізація початкових даних збереженими значеннями
-    username = savedUsername;
-    email = savedEmail;
-    password = savedPassword;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -257,11 +212,10 @@ class _ProfilePageState extends State<ProfilePage> {
               const SizedBox(height: 30),
               CustomButton(
                 text: 'Редагувати',
-                onPressed: () async {
-                  // Очікування результату після редагування
-                  await Navigator.push(
+                onPressed: () {
+                  Navigator.push(
                     context,
-                    MaterialPageRoute(
+                    MaterialPageRoute<Widget>(
                       builder: (context) => EditProfilePage(
                         username: username,
                         email: email,
@@ -269,12 +223,6 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                     ),
                   );
-                  // Оновлення даних після повернення
-                  setState(() {
-                    username = savedUsername;
-                    email = savedEmail;
-                    password = savedPassword;
-                  });
                 },
               ),
             ],
@@ -342,36 +290,8 @@ class EditProfilePage extends StatelessWidget {
 }
 
 // Головна Сторінка
-class HomePage extends StatefulWidget {
+class HomePage extends StatelessWidget {
   const HomePage({super.key});
-
-  @override
-  State<HomePage> createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePage> {
-  Connectivity connectivity = Connectivity();
-  late StreamSubscription streamSubscription;
-
-  @override
-  initState() {
-    super.initState();
-    getConnectivity();
-    streamSubscription = connectivity.onConnectivityChanged.listen((result) {
-      print(result);
-
-      if (result[0] == ConnectivityResult.none) {
-        print("no connection");
-      }
-      ;
-    });
-  }
-
-  Future<void> getConnectivity() async {
-    final connectivity = await Connectivity().checkConnectivity();
-
-    print(connectivity[0]);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -461,3 +381,4 @@ class CustomButton extends StatelessWidget {
     );
   }
 }
+
